@@ -5,6 +5,7 @@ import com.greatapi.great_api.exceptions.NameAlreadyExistsException;
 import com.greatapi.great_api.models.UserModel;
 import com.greatapi.great_api.services.UserService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,21 +18,21 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/user")
 public class UserController {
-    final UserService userService;
+    @Autowired
+    private UserService userService;
 
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping
-    public ResponseEntity<Object> saveUser(@RequestBody @Valid UserDto userDto) {
+    public ResponseEntity<UserModel> saveUser(@RequestBody @Valid UserDto userDto) {
         UserModel userModel = new UserModel();
         BeanUtils.copyProperties(userDto, userModel);
         userModel.setRegistrationDate(LocalDate.now(ZoneId.of("UTC")));
@@ -48,27 +49,27 @@ public class UserController {
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<Object> getUserById(@PathVariable (value="id") UUID id) {
+    public ResponseEntity<UserModel> getUserById(@PathVariable (value="id") UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.findById(id));
     }
 
     @GetMapping("/rg/{rg}")
-    public ResponseEntity<Object> getUserByRg(@PathVariable (value="rg") String rg) {
+    public ResponseEntity<UserModel> getUserByRg(@PathVariable (value="rg") String rg) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.findByRg(rg));
     }
 
     @GetMapping("/cpf/{cpf}")
-    public ResponseEntity<Object> getUserByCpf(@PathVariable (value="cpf") String cpf) {
+    public ResponseEntity<UserModel> getUserByCpf(@PathVariable (value="cpf") String cpf) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.findByCpf(cpf));
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<Object> getUserByName(@PathVariable (value="name") String name) {
+    public ResponseEntity<UserModel> getUserByName(@PathVariable (value="name") String name) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.findByName(name));
     }
 
     @PutMapping("/id/{id}")
-    public ResponseEntity<Object> updateUser(@PathVariable (value="id") UUID id, @RequestBody @Valid UserDto userDto) {
+    public ResponseEntity<UserModel> updateUser(@PathVariable (value="id") UUID id, @RequestBody @Valid UserDto userDto) {
         UserModel userModel = new UserModel();
         BeanUtils.copyProperties(userDto, userModel);
         return ResponseEntity.status(HttpStatus.OK).body(userService.put(id, userModel));

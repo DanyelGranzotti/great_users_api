@@ -6,6 +6,7 @@ import com.greatapi.great_api.exceptions.ObjectNotFoundException;
 import com.greatapi.great_api.exceptions.RgAlreadyExistsException;
 import com.greatapi.great_api.models.UserModel;
 import com.greatapi.great_api.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -81,7 +82,7 @@ public class UserService {
         return userRepository.findByCpf(cpf).orElseThrow(() -> new ObjectNotFoundException(cpf));
     }
 
-    public Object findByName(String name) {
+    public UserModel findByName(String name) {
         return userRepository.findByNameContaining(name).orElseThrow(() -> new ObjectNotFoundException(name));
     }
 
