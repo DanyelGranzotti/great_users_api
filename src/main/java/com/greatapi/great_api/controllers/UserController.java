@@ -40,7 +40,7 @@ public class UserController {
             return ResponseEntity.status(400).body("RG already exists");
         }
 
-        var userModel = new UserModel();
+        UserModel userModel = new UserModel();
         BeanUtils.copyProperties(userDto, userModel);
         userModel.setRegistrationDate(LocalDate.now(ZoneId.of("UTC")));
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(userModel));
@@ -66,7 +66,7 @@ public class UserController {
         if (!userModelOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
-        var userModel = userModelOptional.get();
+        UserModel userModel = userModelOptional.get();
         if (!userModel.getName().equals(userDto.getName()) && userService.existsByName(userDto.getName())) {
             return ResponseEntity.status(400).body("Name already exists");
         }
