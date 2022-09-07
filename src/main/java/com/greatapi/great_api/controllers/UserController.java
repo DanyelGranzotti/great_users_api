@@ -1,6 +1,7 @@
 package com.greatapi.great_api.controllers;
 
 import com.greatapi.great_api.dtos.UserDto;
+import com.greatapi.great_api.exceptions.NameAlreadyExistsException;
 import com.greatapi.great_api.models.UserModel;
 import com.greatapi.great_api.services.UserService;
 import org.springframework.beans.BeanUtils;
@@ -11,6 +12,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -30,20 +32,14 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<Object> saveUser(@RequestBody @Valid UserDto userDto) {
-        if (userService.existsByName(userDto.getName())) {
-            return ResponseEntity.status(400).body("Name already exists");
-        }
-        if (userService.existsByCpf(userDto.getCpf())) {
-            return ResponseEntity.status(400).body("CPF already exists");
-        }
-        if (userService.existsByRg(userDto.getRg())) {
-            return ResponseEntity.status(400).body("RG already exists");
-        }
-
         UserModel userModel = new UserModel();
         BeanUtils.copyProperties(userDto, userModel);
         userModel.setRegistrationDate(LocalDate.now(ZoneId.of("UTC")));
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(userModel));
+        return ResponseEntity.created(ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/user")
+                .buildAndExpand(userModel.getId())
+                .toUri()).body(userService.save(userModel));
     }
 
     @GetMapping
@@ -51,43 +47,48 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userService.findAll(pageable));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<Object> getUserById(@PathVariable (value="id") UUID id) {
-        Optional<UserModel> userModelOptional = userService.findById(id);
-        if (!userModelOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(userModelOptional.get());
+        return ResponseEntity.status(HttpStatus.OK).body(userService.findById(id));
     }
 
-    @PutMapping("/{id}")
+    @GetMapping("/rg/{rg}")
+    public ResponseEntity<Object> getUserByRg(@PathVariable (value="rg") String rg) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.findByRg(rg));
+    }
+
+    @GetMapping("/cpf/{cpf}")
+    public ResponseEntity<Object> getUserByCpf(@PathVariable (value="cpf") String cpf) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.findByCpf(cpf));
+    }
+
+    @GetMapping("/name/{name}")
+    public ResponseEntity<Object> getUserByName(@PathVariable (value="name") String name) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.findByName(name));
+    }
+
+    @PutMapping("/id/{id}")
     public ResponseEntity<Object> updateUser(@PathVariable (value="id") UUID id, @RequestBody @Valid UserDto userDto) {
-        Optional<UserModel> userModelOptional = userService.findById(id);
-        if (!userModelOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
-        UserModel userModel = userModelOptional.get();
-        if (!userModel.getName().equals(userDto.getName()) && userService.existsByName(userDto.getName())) {
-            return ResponseEntity.status(400).body("Name already exists");
-        }
-        if (!userModel.getCpf().equals(userDto.getCpf()) && userService.existsByCpf(userDto.getCpf())) {
-            return ResponseEntity.status(400).body("CPF already exists");
-        }
-        if (!userModel.getRg().equals(userDto.getRg()) && userService.existsByRg(userDto.getRg())) {
-            return ResponseEntity.status(400).body("RG already exists");
-        }
+        UserModel userModel = new UserModel();
         BeanUtils.copyProperties(userDto, userModel);
-        return ResponseEntity.status(HttpStatus.OK).body(userService.save(userModel));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.put(id, userModel));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteUser(@PathVariable (value="id") UUID id) {
-        Optional<UserModel> userModelOptional = userService.findById(id);
-        if (!userModelOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-        }
+    @DeleteMapping("/id/{id}")
+    public ResponseEntity<Boolean> deleteUser(@PathVariable (value="id") UUID id) {
         userService.deleteById(id);
-        return ResponseEntity.status(HttpStatus.OK).body("User deleted");
+        return ResponseEntity.status(HttpStatus.OK).body(true);
     }
 
+    @DeleteMapping("/rg/{rg}")
+    public ResponseEntity<Boolean> deleteUserByRg(@PathVariable (value="rg") String rg) {
+        userService.deleteByRg(rg);
+        return ResponseEntity.status(HttpStatus.OK).body(true);
+    }
+
+    @DeleteMapping("/cpf/{cpf}")
+    public ResponseEntity<Boolean> deleteUserByCpf(@PathVariable (value="cpf") String cpf) {
+        userService.deleteByCpf(cpf);
+        return ResponseEntity.status(HttpStatus.OK).body(true);
+    }
 }
