@@ -6,12 +6,14 @@ import com.greatapi.great_api.exceptions.ObjectNotFoundException;
 import com.greatapi.great_api.exceptions.RgAlreadyExistsException;
 import com.greatapi.great_api.models.UserModel;
 import com.greatapi.great_api.repositories.UserRepository;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -82,8 +84,8 @@ public class UserService {
         return userRepository.findByCpf(cpf).orElseThrow(() -> new ObjectNotFoundException(cpf));
     }
 
-    public UserModel findByName(String name) {
-        return userRepository.findByNameContaining(name).orElseThrow(() -> new ObjectNotFoundException(name));
+    public List<UserModel> findByNameContains(String name) {
+        return userRepository.findByNameContaining(name);
     }
 
     public void deleteById(UUID id) {
@@ -100,6 +102,7 @@ public class UserService {
         UserModel user = userRepository.findByCpf(cpf).orElseThrow(() -> new ObjectNotFoundException(cpf));
         userRepository.delete(user);
     }
+
 
 
 }

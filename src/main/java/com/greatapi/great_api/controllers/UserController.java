@@ -4,6 +4,7 @@ import com.greatapi.great_api.dtos.UserDto;
 import com.greatapi.great_api.exceptions.NameAlreadyExistsException;
 import com.greatapi.great_api.models.UserModel;
 import com.greatapi.great_api.services.UserService;
+import org.apache.catalina.User;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -64,10 +66,14 @@ public class UserController {
     }
 
     @GetMapping("/name/{name}")
-    public ResponseEntity<UserModel> getUserByName(@PathVariable (value="name") String name) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.findByName(name));
+    public ResponseEntity<List<UserModel>> getUserByName(@PathVariable (value="name") String name) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.findByNameContains(name));
     }
 
+    /*public ResponseEntity<List<Laptop>> getLaptopsByNameContains(@RequestParam String name) {
+        return new ResponseEntity<List<Laptop>>(lRepo.findByNameContaining(name), HttpStatus.OK);
+    }
+*/
     @PutMapping("/id/{id}")
     public ResponseEntity<UserModel> updateUser(@PathVariable (value="id") UUID id, @RequestBody @Valid UserDto userDto) {
         UserModel userModel = new UserModel();
