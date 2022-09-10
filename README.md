@@ -2,6 +2,15 @@
 
 A Restful CRUD API for a simple user management application using Spring Boot, Heroku Postgres, JPA and Hibernate.
 
+## API hosted on the Heroku platform
+
+```bash
+https://greatuserapi.herokuapp.com/user
+```
+<p align="center">
+<a href="https://greatuserapi.herokuapp.com/user" target="_blank"> Heroku Link </a>
+</p>
+  
 ## Requirements
 
 1. Java - 1.8.x
