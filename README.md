@@ -47,3 +47,9 @@ You can import the methods directly into <a href="https://www.postman.com/downlo
 ```bash
 https://www.postman.com/collections/75c016560c1c097d1b73
 ```
+
+Or if you just want to test how the already hosted API works:
+
+```bash
+https://www.getpostman.com/collections/1b29de71219a36d9507c
+```
